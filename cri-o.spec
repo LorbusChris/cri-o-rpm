@@ -48,7 +48,7 @@
 Epoch: 2
 Name: %{repo}
 Version: 1.18.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -130,6 +130,7 @@ sed -i 's/\/local//' contrib/systemd/%{service_name}.service
       --selinux \
       --cgroup-manager "systemd" \
       --conmon "%{_libexecdir}/%{service_name}/conmon" \
+      --cni-plugin-dir /opt/cni/bin \
       --cni-plugin-dir "%{_libexecdir}/cni" \
       config > %{service_name}.conf
 
@@ -223,6 +224,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Fri Jun 05 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.1-2
+- Add --cni-plugin-dir /opt/cni/bin to cri-o conf file
+
 * Thu May 16 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.1-1
 - Release 1.18.1
 
