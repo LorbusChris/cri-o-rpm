@@ -31,7 +31,7 @@
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
 
 # Commit for the builds
-%global commit0 5cbf694c34f8d1af19eb873e39057663a4830635
+%global commit0 7f261aeebffed079b4475dde8b9d602b01973d33
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -40,15 +40,15 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%define built_tag v1.18.1
+%define built_tag v1.18.2
 %define built_tag_strip %(b=%{built_tag}; echo ${b:1})
 %define crio_release_tag %(echo %{built_tag_strip} | cut -f1,2 -d'.')
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
 Epoch: 2
 Name: %{repo}
-Version: 1.18.1
-Release: 2%{?dist}
+Version: 1.18.2
+Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -224,6 +224,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Tue Jun 23 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.2-1
+- Build 1.18.2
+
 * Fri Jun 05 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.1-2
 - Add --cni-plugin-dir /opt/cni/bin to cri-o conf file
 
