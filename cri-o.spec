@@ -31,7 +31,7 @@
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
 
 # Commit for the builds
-%global commit0 7f261aeebffed079b4475dde8b9d602b01973d33
+%global commit0 61de18161fb4ccda720768c001713592b5a04e46
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -40,15 +40,15 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%define built_tag v1.18.2
+%define built_tag v1.18.3
 %define built_tag_strip %(b=%{built_tag}; echo ${b:1})
 %define crio_release_tag %(echo %{built_tag_strip} | cut -f1,2 -d'.')
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
 Epoch: 2
 Name: %{repo}
-Version: 1.18.2
-Release: 2%{?dist}
+Version: 1.18.3
+Release: 0%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -223,6 +223,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Wed Jul 29 2020 Peter Hunt <pehunt@redhat.com> - 2:1.18.3-0
+- Bump to v1.18.3
+
 * Wed Jul 29 2020 Peter Hunt <pehunt@redhat.com> - 2:1.18.2-2
 - remove custom conmon path
 
