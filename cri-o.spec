@@ -48,7 +48,7 @@
 Epoch: 2
 Name: %{repo}
 Version: 1.18.3
-Release: 0%{?dist}
+Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -78,7 +78,7 @@ Requires(pre): (container-selinux if selinux-policy)
 Requires: container-selinux
 %endif
 Requires: containers-common >= 1:0.1.31-14
-Requires: runc >= 1.0.0-16
+Recommends: runc >= 1.0.0-16
 Obsoletes: ocid <= 0.3
 Provides: ocid = %{epoch}:%{version}-%{release}
 Provides: %{service_name} = %{epoch}:%{version}-%{release}
@@ -223,6 +223,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Tue Aug 04 2020 Peter Hunt <pehunt@redhat.com> - 2:1.18.3-1
+- Github 3923: Make runc installation recommended
+
 * Wed Jul 29 2020 Peter Hunt <pehunt@redhat.com> - 2:1.18.3-0
 - Bump to v1.18.3
 
