@@ -31,7 +31,7 @@
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
 
 # Commit for the builds
-%global commit0 61de18161fb4ccda720768c001713592b5a04e46
+%global commit0 99c925bebdd9e392f2d575e25f2e6a1082e6c232
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -40,15 +40,15 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%define built_tag v1.18.3
+%define built_tag v1.19.0
 %define built_tag_strip %(b=%{built_tag}; echo ${b:1})
 %define crio_release_tag %(echo %{built_tag_strip} | cut -f1,2 -d'.')
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
 Epoch: 2
 Name: %{repo}
-Version: 1.18.3
-Release: 1%{?dist}
+Version: 1.19.0
+Release: 0%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -223,6 +223,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Mon Sep 14 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-0
+- bump to 1.19.0
+
 * Tue Aug 04 2020 Peter Hunt <pehunt@redhat.com> - 2:1.18.3-1
 - Github 3923: Make runc installation recommended
 
