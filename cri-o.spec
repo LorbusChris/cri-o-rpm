@@ -78,7 +78,11 @@ Requires(pre): (container-selinux if selinux-policy)
 Requires: container-selinux
 %endif
 Requires: containers-common >= 1:0.1.31-14
+%if 0%{?fedora} || 0%{?centos} >= 8
 Recommends: runc >= 1.0.0-16
+%else
+Requires: runc >= 1.0.0-16
+%endif
 Obsoletes: ocid <= 0.3
 Provides: ocid = %{epoch}:%{version}-%{release}
 Provides: %{service_name} = %{epoch}:%{version}-%{release}
