@@ -48,7 +48,7 @@
 Epoch: 2
 Name: %{repo}
 Version: 1.19.0
-Release: 0%{?dist}
+Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -66,7 +66,11 @@ BuildRequires: device-mapper-devel
 BuildRequires: git
 BuildRequires: glib2-devel
 BuildRequires: glibc-static
+%if 0%{?fedora}
+BuildRequires: golang-github-cpuguy83-md2man
+%else
 BuildRequires: go-md2man
+%endif
 BuildRequires: gpgme-devel
 BuildRequires: libassuan-devel
 BuildRequires: libseccomp-devel
@@ -227,6 +231,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Mon Oct 05 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-1
+- update go-md2man dependency to handle OBS
+
 * Mon Sep 14 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-0
 - bump to 1.19.0
 
