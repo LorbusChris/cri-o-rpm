@@ -48,7 +48,7 @@
 Epoch: 2
 Name: %{repo}
 Version: 1.19.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -77,7 +77,7 @@ BuildRequires: libseccomp-devel
 BuildRequires: pkgconfig(systemd)
 BuildRequires: make
 %if 0%{?fedora}
-Requires(pre): (container-selinux if selinux-policy)
+Requires(pre): container-selinux
 %else
 Requires: container-selinux
 %endif
@@ -231,6 +231,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Mon Oct 05 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-2
+- update selinux dep to handle OBS
+
 * Mon Oct 05 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-1
 - update go-md2man dependency to handle OBS
 
