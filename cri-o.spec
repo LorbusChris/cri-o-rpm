@@ -48,7 +48,7 @@
 Epoch: 2
 Name: %{repo}
 Version: 1.19.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -186,12 +186,14 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %if 0%{?centos} <= 7
 sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %endif
+ln -sf %{_unitdir}/%{service_name}.service {_unitdir}/%{repo}.service
 %systemd_post %{service_name}
 
 %preun
 %systemd_preun %{service_name}
 
 %postun
+rm -f %{_unitdir}/%{repo}.service
 %systemd_postun_with_restart %{service_name}
 
 #define license tag if not already defined
@@ -231,6 +233,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Mon Nov  9 15:04:39 EST 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-3
+- upstream#3879: fix symbolic link
+
 * Mon Oct 05 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-2
 - update selinux dep to handle OBS
 
