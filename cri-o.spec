@@ -48,7 +48,7 @@
 Epoch: 2
 Name: %{repo}
 Version: 1.19.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -233,7 +233,10 @@ rm -f %{_unitdir}/%{repo}.service
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
-* Mon Nov  9 15:04:39 EST 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-3
+* Thu Nov 19 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-4
+- fix timestamp for centos 7
+
+* Mon Nov  9 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-3
 - upstream#3879: fix symbolic link
 
 * Mon Oct 05 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-2
