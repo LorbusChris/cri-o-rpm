@@ -31,7 +31,7 @@
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
 
 # Commit for the builds
-%global commit0 99c925bebdd9e392f2d575e25f2e6a1082e6c232
+%global commit0 d388528dbed26b93c5bc1c89623607a1e597aa57
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -40,15 +40,15 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%define built_tag v1.19.0
+%define built_tag v1.20.0
 %define built_tag_strip %(b=%{built_tag}; echo ${b:1})
 %define crio_release_tag %(echo %{built_tag_strip} | cut -f1,2 -d'.')
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
-Epoch: 2
+Epoch: 0
 Name: %{repo}
-Version: 1.19.0
-Release: 4%{?dist}
+Version: 1.20.0
+Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -233,6 +233,9 @@ rm -f %{_unitdir}/%{repo}.service
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Fri Dec 11 11:47:30 EST 2020 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-1
+- Bump to v1.20.0
+
 * Thu Nov 19 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-4
 - fix timestamp for centos 7
 
