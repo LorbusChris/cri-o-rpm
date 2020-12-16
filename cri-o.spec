@@ -233,7 +233,7 @@ rm -f %{_unitdir}/%{repo}.service
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
-* Fri Dec 11 11:47:30 EST 2020 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-1
+* Fri Dec 11 2020 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-1
 - Bump to v1.20.0
 
 * Thu Nov 19 2020 Peter Hunt <pehunt@redhat.com> - 2:1.19.0-4
