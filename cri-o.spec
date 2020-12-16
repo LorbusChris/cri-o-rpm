@@ -48,7 +48,7 @@
 Epoch: 0
 Name: %{repo}
 Version: 1.20.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -107,7 +107,18 @@ sed -i 's/module_/module-/' internal/version/version.go
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
 sed -i 's/\/local//' contrib/systemd/%{service_name}-wipe.service
 
+
 %build
+export CGO_CFLAGS='-O2 -g -grecord-gcc-switches -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -ffat-lto-objects -fexceptions -fasynchronous-unwind-tables -fstack-protector-strong -fstack-clash-protection -D_GNU_SOURCE -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64'
+%ifarch x86_64
+export CGO_CFLAGS="$CGO_CFLAGS -m64 -mtune=generic"
+%if 0%{?fedora} || 0%{?centos} >= 8
+export CGO_CFLAGS="$CGO_CFLAGS -fcf-protection"
+%endif
+%endif
+# These extra flags present in %%{optflags} have been skipped for now as they break the build
+#export CGO_CFLAGS="$CGO_CFLAGS -flto=auto -Wp,D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1"
+
 mkdir _output
 pushd _output
 mkdir -p src/%{provider}.%{provider_tld}/{%{project},opencontainers}
@@ -130,7 +141,8 @@ export LDFLAGS="-X %{import_path}/internal/pkg/criocli.DefaultsPath=%{criocli_pa
 %gobuild -o bin/%{service_name} %{import_path}/cmd/%{service_name}
 %gobuild -o bin/%{service_name}-status %{import_path}/cmd/%{service_name}-status
 
-GO_MD2MAN=go-md2man %{__make} bin/pinns docs
+GO_MD2MAN=go-md2man %{__make} docs
+CFLAGS="-std=c99 -Os -Wall -Werror -Wextra -fpic -pie" %{__make} bin/pinns
 
 %install
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
@@ -233,6 +245,9 @@ rm -f %{_unitdir}/%{repo}.service
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Wed Dec 16 2020 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-2
+- enable PIE mode for cri-o
+
 * Fri Dec 11 2020 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-1
 - Bump to v1.20.0
 
