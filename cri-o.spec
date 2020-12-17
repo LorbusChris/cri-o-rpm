@@ -48,7 +48,7 @@
 Epoch: 0
 Name: %{repo}
 Version: 1.20.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -142,7 +142,10 @@ export LDFLAGS="-X %{import_path}/internal/pkg/criocli.DefaultsPath=%{criocli_pa
 %gobuild -o bin/%{service_name}-status %{import_path}/cmd/%{service_name}-status
 
 GO_MD2MAN=go-md2man %{__make} docs
-CFLAGS="-std=c99 -Os -Wall -Werror -Wextra -fpic -pie" %{__make} bin/pinns
+# work around until https://github.com/cri-o/cri-o/pull/4442 is accepted
+# we need to drop -static for Stack Canary, Relro, and PIE
+sed -i 's/-static//g' pinns/Makefile
+CFLAGS="-std=c99 -Os -Wall -Werror -Wextra -fpie -pie -fstack-protector -D_FORTIFY_SOURCE=3 -Wl,-z,relro,-z,now" %{__make} bin/pinns
 
 %install
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
@@ -245,6 +248,9 @@ rm -f %{_unitdir}/%{repo}.service
 %{_datadir}/zsh/site-functions/_%{service_name}*
 
 %changelog
+* Thu Dec 17 2020 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-3
+- Fix checksec for pinns
+
 * Wed Dec 16 2020 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-2
 - enable PIE mode for cri-o
 
