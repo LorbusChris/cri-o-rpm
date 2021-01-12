@@ -204,10 +204,9 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %post
 # Old verions of kernel do not reconigze metacopy option.
 # Reference: github.com/cri-o/cri-o/issues/3631
-%if 0%{?centos} <= 7
+%if 0%{?centos} <= 7 || 0%{?rhel} <= 7
 sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %sysctl_apply 99-cri-o.conf
-
 %endif
 ln -sf %{_unitdir}/%{service_name}.service {_unitdir}/%{repo}.service
 %systemd_post %{service_name}
@@ -254,7 +253,9 @@ rm -f %{_unitdir}/%{repo}.service
 %{_datadir}/bash-completion/completions/%{service_name}*
 %{_datadir}/fish/completions/%{service_name}*.fish
 %{_datadir}/zsh/site-functions/_%{service_name}*
+%if 0%{?centos} <= 7 || 0%{?rhel} <= 7
 %{_usr}/lib/sysctl.d/99-cri-o.conf
+%endif
 
 %changelog
 * Tue Jan 12 2021 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-4
