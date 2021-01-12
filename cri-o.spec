@@ -48,7 +48,7 @@
 Epoch: 0
 Name: %{repo}
 Version: 1.20.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -186,6 +186,12 @@ make PREFIX=%{buildroot}%{_usr} DESTDIR=%{buildroot} \
             install.man \
             install.systemd
 
+%if 0%{?centos} <= 7 || 0%{?rhel} <= 7
+# https://bugzilla.redhat.com/show_bug.cgi?id=1823374#c17
+install -d -p %{buildroot}%{_usr}/lib/sysctl.d
+echo "fs.may_detach_mounts=1" > %{buildroot}%{_usr}/lib/sysctl.d/99-cri-o.conf
+%endif
+
 install -dp %{buildroot}%{_sharedstatedir}/containers
 #install -dp %%{buildroot}%%{_libexecdir}/%%{service_name}/%%{service_name}-wipe
 #install -dp %%{buildroot}%%{_usr}/lib/systemd/system-preset
@@ -200,6 +206,8 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 # Reference: github.com/cri-o/cri-o/issues/3631
 %if 0%{?centos} <= 7
 sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
+%sysctl_apply 99-cri-o.conf
+
 %endif
 ln -sf %{_unitdir}/%{service_name}.service {_unitdir}/%{repo}.service
 %systemd_post %{service_name}
@@ -246,8 +254,12 @@ rm -f %{_unitdir}/%{repo}.service
 %{_datadir}/bash-completion/completions/%{service_name}*
 %{_datadir}/fish/completions/%{service_name}*.fish
 %{_datadir}/zsh/site-functions/_%{service_name}*
+%{_usr}/lib/sysctl.d/99-cri-o.conf
 
 %changelog
+* Tue Jan 12 2021 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-4
+- add fs.may_detach_mounts sysctl for centos/rhel 7
+
 * Thu Dec 17 2020 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-3
 - Fix checksec for pinns
 
