@@ -48,7 +48,7 @@
 Epoch: 0
 Name: %{repo}
 Version: 1.20.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -204,7 +204,7 @@ export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
 %post
 # Old verions of kernel do not reconigze metacopy option.
 # Reference: github.com/cri-o/cri-o/issues/3631
-%if 0%{?centos} <= 7 || 0%{?rhel} <= 7
+%if ! 0%{?fedora} && (0%{?centos} <= 7 || 0%{?rhel} <= 7)
 sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %sysctl_apply 99-cri-o.conf
 %endif
@@ -258,6 +258,9 @@ rm -f %{_unitdir}/%{repo}.service
 %endif
 
 %changelog
+* Mon Feb 15 2021 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-5
+- Keep metacopy for fedora
+
 * Tue Jan 12 2021 Peter Hunt <pehunt@redhat.com> - 0:1.20.0-4
 - add fs.may_detach_mounts sysctl for centos/rhel 7
 
