@@ -153,7 +153,7 @@ sed -i 's/\/local//' contrib/systemd/%{service_name}.service
       --selinux \
       --cni-plugin-dir /opt/cni/bin \
       --cni-plugin-dir "%{_libexecdir}/cni" \
-	  --enable-metrics true \
+	  --enable-metrics \
 	  --metrics-port 9537 \
       config > %{service_name}.conf
 
