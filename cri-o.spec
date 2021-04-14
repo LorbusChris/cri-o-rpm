@@ -31,7 +31,7 @@
 %global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
 
 # Commit for the builds
-%global commit0 d5a999ad0a35d895ded554e1e18c142075501a98
+%global commit0 bc1ef35a932acc2f6f3b6d3eb19a4f68aa9423f6
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global git0 https://%{import_path}
 
@@ -40,14 +40,14 @@
 
 # Used for comparing with latest upstream tag
 # to decide whether to autobuild (non-rawhide only)
-%define built_tag v1.20.2
+%define built_tag v1.21.0
 %define built_tag_strip %(b=%{built_tag}; echo ${b:1})
 %define crio_release_tag %(echo %{built_tag_strip} | cut -f1,2 -d'.')
 %define download_url %{git0}/archive/%{built_tag}.tar.gz
 
 Epoch: 0
 Name: %{repo}
-Version: 1.20.2
+Version: 1.21.0
 Release: 1%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
@@ -258,6 +258,9 @@ rm -f %{_unitdir}/%{repo}.service
 %endif
 
 %changelog
+* Wed Apr 14 2021 Peter Hunt <pehunt@redhat.com> - 0:1.21.0-1
+- Bump to v1.21.0
+
 * Wed Mar 24 2021 Peter Hunt <pehunt@redhat.com> - 0:1.20.2-1
 - Bump to v1.20.2
 
