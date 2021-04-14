@@ -48,7 +48,7 @@
 Epoch: 0
 Name: %{repo}
 Version: 1.21.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 ExcludeArch: ppc64
 Summary: Kubernetes Container Runtime Interface for OCI-based containers
 License: ASL 2.0
@@ -151,9 +151,10 @@ CFLAGS="-std=c99 -Os -Wall -Werror -Wextra -fpie -pie -fstack-protector -D_FORTI
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
 ./bin/%{service_name} \
       --selinux \
-      --cgroup-manager "systemd" \
       --cni-plugin-dir /opt/cni/bin \
       --cni-plugin-dir "%{_libexecdir}/cni" \
+	  --enable-metrics true \
+	  --metrics-port 9537 \
       config > %{service_name}.conf
 
 # install binaries
@@ -258,6 +259,10 @@ rm -f %{_unitdir}/%{repo}.service
 %endif
 
 %changelog
+* Wed Apr 14 2021 Peter Hunt <pehunt@redhat.com> - 0:1.21.0-2
+- Use crio config for metrics configuration
+- drop systemd from crio configuration
+
 * Wed Apr 14 2021 Peter Hunt <pehunt@redhat.com> - 0:1.21.0-1
 - Bump to v1.21.0
 
