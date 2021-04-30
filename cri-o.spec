@@ -145,7 +145,7 @@ GO_MD2MAN=go-md2man %{__make} docs
 # work around until https://github.com/cri-o/cri-o/pull/4442 is accepted
 # we need to drop -static for Stack Canary, Relro, and PIE
 sed -i 's/-static//g' pinns/Makefile
-CFLAGS="-std=c99 -Os -Wall -Werror -Wextra -fpie -pie -fstack-protector -D_FORTIFY_SOURCE=3 -Wl,-z,relro,-z,now" %{__make} bin/pinns
+CFLAGS="-std=c99 -Os -Wall -Werror -Wextra -fpie -pie -fstack-protector -D_FORTIFY_SOURCE=2 -Wl,-z,relro,-z,now" %{__make} bin/pinns
 
 %install
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
