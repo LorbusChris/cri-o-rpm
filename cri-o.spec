@@ -1,104 +1,109 @@
-%if 0%{?centos}
-%global with_debug 0
+# https://github.com/cri-o/cri-o
+%global goipath         github.com/cri-o/cri-o
+Version:                1.21.0
+
+%if 0%{?rhel} && 0%{?rhel} <= 8
+%define gobuild(o:) %{expand:
+  # https://bugzilla.redhat.com/show_bug.cgi?id=995136#c12
+  %global _dwz_low_mem_die_limit 0
+  %ifnarch ppc64
+  go build -buildmode pie -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '%__global_ldflags %{?__golang_extldflags}' -compressdwarf=false" -a -v -x %{?**};
+  %else
+  go build                -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '%__global_ldflags %{?__golang_extldflags}' -compressdwarf=false" -a -v -x %{?**};
+  %endif
+}
+%bcond_with check
 %else
-%global with_debug 1
+%gometa
+%bcond_without check
 %endif
-%global with_check 0
-
-%if 0%{?with_debug}
-%global _find_debuginfo_dwz_opts %{nil}
-%global _dwz_low_mem_die_limit 0
-%else
-%global debug_package %{nil}
-%endif
-
-%if ! 0%{?gobuild:1} || 0%{?centos}
-%define gobuild(o:) GO111MODULE=off go build -buildmode pie -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '-Wl,-z,relro -Wl,--as-needed  -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld '" -a -v -x %{?**}; 
-%endif
-
-# Global vars
-%global provider github
-%global provider_tld com
-%global project cri-o
-%global repo cri-o
 
 # Related: github.com/cri-o/cri-o/issues/3684
 %global build_timestamp %(date -u +'%Y-%m-%dT%H:%M:%SZ')
 %global git_tree_state clean
 %global criocli_path ""
 
-# https://github.com/cri-o/cri-o
-%global import_path %{provider}.%{provider_tld}/%{project}/%{repo}
-
-# Commit for the builds
-%global commit0 bc1ef35a932acc2f6f3b6d3eb19a4f68aa9423f6
-%global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
-%global git0 https://%{import_path}
+# Used for comparing with latest upstream tag
+# to decide whether to autobuild (non-rawhide only)
+%global built_tag v%{version}
+%global built_tag_strip %(b=%{built_tag}; echo ${b:1})
+%global crio_release_tag %(echo %{built_tag_strip} | cut -f1,2 -d'.')
 
 # Services
 %global service_name crio
 
-# Used for comparing with latest upstream tag
-# to decide whether to autobuild (non-rawhide only)
-%define built_tag v1.21.0
-%define built_tag_strip %(b=%{built_tag}; echo ${b:1})
-%define crio_release_tag %(echo %{built_tag_strip} | cut -f1,2 -d'.')
-%define download_url %{git0}/archive/%{built_tag}.tar.gz
 
-Epoch: 0
-Name: %{repo}
-Version: 1.21.0
-Release: 2%{?dist}
-ExcludeArch: ppc64
-Summary: Kubernetes Container Runtime Interface for OCI-based containers
-License: ASL 2.0
-URL: %{git0}
-Source0: %{download_url}
-Source3: %{service_name}-network.sysconfig
-Source4: %{service_name}-storage.sysconfig
-Source5: %{service_name}-metrics.sysconfig
-# If go_compiler is not set to 1, there is no virtual provide. Use golang instead.
-BuildRequires: golang
+Name:           cri-o
+Epoch:          0
+Release:        3%{?dist}
+Summary:        Open Container Initiative-based implementation of Kubernetes Container Runtime Interface
+
+
+# Upstream license specification: Apache-2.0
+License:        ASL 2.0
+URL:            https://github.com/cri-o/cri-o
+Source0:        %url/archive/v%{version}/%{name}-%{version}.tar.gz
+Source3:        %{service_name}-network.sysconfig
+Source4:        %{service_name}-storage.sysconfig
+Source5:        %{service_name}-metrics.sysconfig
+
+%if 0%{?rhel}
+BuildRequires:  golang
+%endif
+
+%if 0%{?rhel} && 0%{?rhel} <= 8
+# e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
+ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 aarch64 %{arm}}
+%endif
+
 %if 0%{?fedora}
-BuildRequires: btrfs-progs-devel
-BuildRequires: device-mapper-devel
+BuildRequires:  btrfs-progs-devel
+BuildRequires:  device-mapper-devel
+BuildRequires:  go-rpm-macros
 %endif
-BuildRequires: git
-BuildRequires: glib2-devel
-BuildRequires: glibc-static
+BuildRequires:  git-core
+BuildRequires:  glib2-devel
+BuildRequires:  glibc-static
+BuildRequires:  go-md2man
+BuildRequires:  gpgme-devel
+BuildRequires:  libassuan-devel
+BuildRequires:  libseccomp-devel
+%if 0%{?rhel} && 0%{?rhel} < 8
+BuildRequires:  systemd-devel
+%else
+BuildRequires:  systemd-rpm-macros
+%endif
+BuildRequires:  make
 %if 0%{?fedora}
-BuildRequires: golang-github-cpuguy83-md2man
+Requires(pre):  container-selinux
 %else
-BuildRequires: go-md2man
+Requires:       container-selinux
 %endif
-BuildRequires: gpgme-devel
-BuildRequires: libassuan-devel
-BuildRequires: libseccomp-devel
-BuildRequires: pkgconfig(systemd)
-BuildRequires: make
-%if 0%{?fedora}
-Requires(pre): container-selinux
+Requires:       containers-common >= 1:0.1.31-14
+%if 0%{?rhel} && 0%{?rhel} < 8
+Requires:       runc >= 1.0.0-16
 %else
-Requires: container-selinux
+Recommends:     runc >= 1.0.0-16
 %endif
-Requires: containers-common >= 1:0.1.31-14
-%if 0%{?fedora} || 0%{?centos} >= 8
-Recommends: runc >= 1.0.0-16
-%else
-Requires: runc >= 1.0.0-16
-%endif
-Obsoletes: ocid <= 0.3
-Provides: ocid = %{epoch}:%{version}-%{release}
-Provides: %{service_name} = %{epoch}:%{version}-%{release}
-Requires: containernetworking-plugins >= 0.7.5-1
-Requires: conmon >= 2.0.2-1
-Requires: socat
+Requires:       containernetworking-plugins >= 0.7.5-1
+Requires:       conmon >= 2.0.2-1
+Requires:       socat
+
+Obsoletes:      ocid <= 0.3
+Provides:       ocid = %{epoch}:%{version}-%{release}
+Provides:       %{service_name} = %{epoch}:%{version}-%{release}
 
 %description
-%{summary}
+Open Container Initiative-based implementation of Kubernetes Container Runtime
+Interface.
 
 %prep
-%autosetup -Sgit -n %{repo}-%{built_tag_strip}
+%if 0%{?rhel} && 0%{?rhel} <= 8
+%autosetup -p1 -n %{name}-%{version}
+%else
+%goprep -k
+%endif
+
 sed -i 's/install.config: crio.conf/install.config:/' Makefile
 sed -i 's/install.bin: binaries/install.bin:/' Makefile
 sed -i 's/install.man: $(MANPAGES)/install.man:/' Makefile
@@ -107,54 +112,41 @@ sed -i 's/module_/module-/' internal/version/version.go
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
 sed -i 's/\/local//' contrib/systemd/%{service_name}-wipe.service
 
-
 %build
-export CGO_CFLAGS='-O2 -g -grecord-gcc-switches -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -ffat-lto-objects -fexceptions -fasynchronous-unwind-tables -fstack-protector-strong -fstack-clash-protection -D_GNU_SOURCE -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64'
-%ifarch x86_64
-export CGO_CFLAGS="$CGO_CFLAGS -m64 -mtune=generic"
-%if 0%{?fedora} || 0%{?centos} >= 8
-export CGO_CFLAGS="$CGO_CFLAGS -fcf-protection"
+export GO111MODULE=on
+export GOFLAGS=-mod=vendor
+
+export BUILDTAGS="$(hack/btrfs_installed_tag.sh)
+$(hack/btrfs_tag.sh) $(hack/libdm_installed.sh)
+$(hack/libdm_no_deferred_remove_tag.sh)
+$(hack/seccomp_tag.sh)
+$(hack/selinux_tag.sh)"
+
+export LDFLAGS="-X %{goipath}/internal/pkg/criocli.DefaultsPath=%{criocli_path}
+-X  %{goipath}/internal/version.buildDate=%{build_timestamp}
+-X  %{goipath}/internal/version.gitCommit=%{commit0}
+-X  %{goipath}/internal/version.version=%{version}
+-X  %{goipath}/internal/version.gitTreeState=%{git_tree_state} "
+
+for cmd in cmd/* ; do
+  %gobuild -o bin/$(basename $cmd) %goipath/$cmd
+done
+
+%if 0%{?fedora}
+%set_build_flags
 %endif
-%endif
-# These extra flags present in %%{optflags} have been skipped for now as they break the build
-#export CGO_CFLAGS="$CGO_CFLAGS -flto=auto -Wp,D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1"
-
-mkdir _output
-pushd _output
-mkdir -p src/%{provider}.%{provider_tld}/{%{project},opencontainers}
-ln -s $(dirs +1 -l) src/%{import_path}
-popd
-
-ln -s vendor src
-export GOPATH=$(pwd)/_output:$(pwd)
-export BUILDTAGS="$(hack/btrfs_installed_tag.sh) $(hack/btrfs_tag.sh) $(hack/libdm_installed.sh) $(hack/libdm_no_deferred_remove_tag.sh) $(hack/seccomp_tag.sh) $(hack/selinux_tag.sh)"
-export GO111MODULE=off
-
-# FIX-ME we are doing a mimic of Makefile.
-# Related: github.com/cri-o/cri-o/issues/3684
-export LDFLAGS="-X %{import_path}/internal/pkg/criocli.DefaultsPath=%{criocli_path}
--X  %{import_path}/internal/version.buildDate=%{build_timestamp}
--X  %{import_path}/internal/version.gitCommit=%{commit0}
--X  %{import_path}/internal/version.version=%{version}
--X  %{import_path}/internal/version.gitTreeState=%{git_tree_state}"
-
-%gobuild -o bin/%{service_name} %{import_path}/cmd/%{service_name}
-%gobuild -o bin/%{service_name}-status %{import_path}/cmd/%{service_name}-status
-
-GO_MD2MAN=go-md2man %{__make} docs
-# work around until https://github.com/cri-o/cri-o/pull/4442 is accepted
-# we need to drop -static for Stack Canary, Relro, and PIE
-sed -i 's/-static//g' pinns/Makefile
-CFLAGS="-std=c99 -Os -Wall -Werror -Wextra -fpie -pie -fstack-protector -D_FORTIFY_SOURCE=2 -Wl,-z,relro,-z,now" %{__make} bin/pinns
+export CFLAGS="$CFLAGS -std=c99"
+%make_build bin/pinns
+GO_MD2MAN=go-md2man make docs
 
 %install
 sed -i 's/\/local//' contrib/systemd/%{service_name}.service
-./bin/%{service_name} \
+bin/%{service_name} \
       --selinux \
       --cni-plugin-dir /opt/cni/bin \
       --cni-plugin-dir "%{_libexecdir}/cni" \
-	  --enable-metrics \
-	  --metrics-port 9537 \
+      --enable-metrics \
+      --metrics-port 9537 \
       config > %{service_name}.conf
 
 # install binaries
@@ -180,51 +172,48 @@ install -p -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name
 install -p -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}-storage
 install -p -m 644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}-metrics
 
-make PREFIX=%{buildroot}%{_usr} DESTDIR=%{buildroot} \
+%make_install PREFIX=%{buildroot}%{_prefix} \
             install.bin \
             install.completions \
             install.config \
             install.man \
             install.systemd
 
-%if 0%{?centos} <= 7 || 0%{?rhel} <= 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
 # https://bugzilla.redhat.com/show_bug.cgi?id=1823374#c17
-install -d -p %{buildroot}%{_usr}/lib/sysctl.d
-echo "fs.may_detach_mounts=1" > %{buildroot}%{_usr}/lib/sysctl.d/99-cri-o.conf
+install -d -p %{buildroot}%{_prefix}/lib/sysctl.d
+echo "fs.may_detach_mounts=1" > %{buildroot}%{_prefix}/lib/sysctl.d/99-cri-o.conf
 %endif
 
 install -dp %{buildroot}%{_sharedstatedir}/containers
-#install -dp %%{buildroot}%%{_libexecdir}/%%{service_name}/%%{service_name}-wipe
-#install -dp %%{buildroot}%%{_usr}/lib/systemd/system-preset
 
+%if %{with check}
 %check
-%if 0%{?with_check}
-export GOPATH=%{buildroot}/%{gopath}:$(pwd)/Godeps/_workspace
+# https://github.com/cri-o/cri-o/issues/4991
+%gocheck -d server
 %endif
 
 %post
-# Old verions of kernel do not reconigze metacopy option.
+# Old verions of kernel do not recognize metacopy option.
 # Reference: github.com/cri-o/cri-o/issues/3631
-%if ! 0%{?fedora} && (0%{?centos} <= 7 || 0%{?rhel} <= 7)
+%if 0%{?rhel} && 0%{?rhel} <= 7
 sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %sysctl_apply 99-cri-o.conf
 %endif
-ln -sf %{_unitdir}/%{service_name}.service {_unitdir}/%{repo}.service
+ln -sf %{_unitdir}/%{service_name}.service {_unitdir}/%{name}.service
 %systemd_post %{service_name}
 
 %preun
 %systemd_preun %{service_name}
 
 %postun
-rm -f %{_unitdir}/%{repo}.service
+rm -f %{_unitdir}/%{name}.service
 %systemd_postun_with_restart %{service_name}
-
-#define license tag if not already defined
-%{!?_licensedir:%global license %doc}
 
 %files
 %license LICENSE
-%doc README.md
+%doc docs code-of-conduct.md tutorial.md ADOPTERS.md CONTRIBUTING.md README.md
+%doc awesome.md transfer.md
 %{_bindir}/%{service_name}
 %{_bindir}/%{service_name}-status
 %{_bindir}/pinns
@@ -241,7 +230,7 @@ rm -f %{_unitdir}/%{repo}.service
 %config(noreplace) %{_sysconfdir}/crictl.yaml
 %dir %{_libexecdir}/%{service_name}
 %{_unitdir}/%{service_name}.service
-%{_unitdir}/%{repo}.service
+%{_unitdir}/%{name}.service
 %{_unitdir}/%{service_name}-shutdown.service
 %{_unitdir}/%{service_name}-wipe.service
 %dir %{_sharedstatedir}/containers
@@ -254,11 +243,14 @@ rm -f %{_unitdir}/%{repo}.service
 %{_datadir}/bash-completion/completions/%{service_name}*
 %{_datadir}/fish/completions/%{service_name}*.fish
 %{_datadir}/zsh/site-functions/_%{service_name}*
-%if 0%{?centos} <= 7 || 0%{?rhel} <= 7
-%{_usr}/lib/sysctl.d/99-cri-o.conf
+%if 0%{?rhel} && 0%{?rhel} <= 7
+%{_prefix}/lib/sysctl.d/99-cri-o.conf
 %endif
 
 %changelog
+* Tue Jun 22 2021 Peter Hunt <pehunt@redhat.com> - 0:1.21.0-3
+- update spec to be more conformant for fedora
+
 * Wed Apr 14 2021 Peter Hunt <pehunt@redhat.com> - 0:1.21.0-2
 - Use crio config for metrics configuration
 - drop systemd from crio configuration
@@ -654,5 +646,3 @@ rm -f %{_unitdir}/%{repo}.service
 
 * Tue Nov 08 2016 Lokesh Mandvekar <lsm5@fedoraproject.org> - 0-0.1.gitc57530e
 - First package for Fedora
-
-
