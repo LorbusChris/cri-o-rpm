@@ -7,9 +7,9 @@ Version:                1.21.0
   # https://bugzilla.redhat.com/show_bug.cgi?id=995136#c12
   %global _dwz_low_mem_die_limit 0
   %ifnarch ppc64
-  go build -buildmode pie -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '%__global_ldflags %{?__golang_extldflags}' -compressdwarf=false" -a -v -x %{?**};
+  go build -buildmode pie -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-}%{?currentgoldflags} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '%__global_ldflags %{?__golang_extldflags}' -compressdwarf=false" -a -v -x %{?**};
   %else
-  go build                -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '%__global_ldflags %{?__golang_extldflags}' -compressdwarf=false" -a -v -x %{?**};
+  go build                -compiler gc -tags="rpm_crashtraceback ${BUILDTAGS:-}" -ldflags "${LDFLAGS:-}%{?currentgoldflags} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n') -extldflags '%__global_ldflags %{?__golang_extldflags}' -compressdwarf=false" -a -v -x %{?**};
   %endif
 }
 %bcond_with check
@@ -50,12 +50,10 @@ Source5:        %{service_name}-metrics.sysconfig
 %if 0%{?rhel}
 BuildRequires:  golang
 %endif
-
 %if 0%{?rhel} && 0%{?rhel} <= 8
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
 ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 aarch64 %{arm}}
 %endif
-
 %if 0%{?fedora}
 BuildRequires:  btrfs-progs-devel
 BuildRequires:  device-mapper-devel
@@ -129,7 +127,7 @@ export LDFLAGS="-X %{goipath}/internal/pkg/criocli.DefaultsPath=%{criocli_path}
 -X  %{goipath}/internal/version.gitTreeState=%{git_tree_state} "
 
 for cmd in cmd/* ; do
-  %gobuild -o bin/$(basename $cmd) %goipath/$cmd
+  %gobuild -o bin/$(basename $cmd) %{goipath}/$cmd
 done
 
 %if 0%{?fedora}
