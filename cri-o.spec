@@ -32,6 +32,8 @@ Version:                1.21.0
 # Services
 %global service_name crio
 
+# Commit for the builds
+%global commit0 f6353417d762bb388d529d054414ad75cc3fff0f
 
 Name:           cri-o
 Epoch:          0
