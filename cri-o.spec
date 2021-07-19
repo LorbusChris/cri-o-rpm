@@ -1,6 +1,6 @@
 # https://github.com/cri-o/cri-o
 %global goipath         github.com/cri-o/cri-o
-Version:                1.21.0
+Version:                1.21.1
 
 %if 0%{?rhel} && 0%{?rhel} <= 8
 %define gobuild(o:) %{expand:
@@ -37,7 +37,7 @@ Version:                1.21.0
 
 Name:           cri-o
 Epoch:          0
-Release:        3%{?dist}
+Release:        1%{?dist}
 Summary:        Open Container Initiative-based implementation of Kubernetes Container Runtime Interface
 
 
@@ -248,6 +248,9 @@ rm -f %{_unitdir}/%{name}.service
 %endif
 
 %changelog
+* Mon Jul 19 2021 Peter Hunt <pehunt@redhat.com> - 0:1.21.1-1
+- bump to v1.21.1
+
 * Tue Jun 22 2021 Peter Hunt <pehunt@redhat.com> - 0:1.21.0-3
 - update spec to be more conformant for fedora
 
