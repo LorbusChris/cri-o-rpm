@@ -1,6 +1,6 @@
 # https://github.com/cri-o/cri-o
 %global goipath         github.com/cri-o/cri-o
-Version:                1.21.1
+Version:                1.21.2
 
 %if 0%{?rhel} && 0%{?rhel} <= 8
 %define gobuild(o:) %{expand:
@@ -33,7 +33,7 @@ Version:                1.21.1
 %global service_name crio
 
 # Commit for the builds
-%global commit0 f6353417d762bb388d529d054414ad75cc3fff0f
+%global commit0 aaefa6b173f79384c6a2a627e5074a7f5b02957f
 
 Name:           cri-o
 Epoch:          0
@@ -248,6 +248,9 @@ rm -f %{_unitdir}/%{name}.service
 %endif
 
 %changelog
+* Tue Jul 20 2021 Peter Hunt <pehunt@redhat.com> - 0:1.21.2-1
+- bump to v1.21.2
+
 * Mon Jul 19 2021 Peter Hunt <pehunt@redhat.com> - 0:1.21.1-1
 - bump to v1.21.1
 
