@@ -200,14 +200,12 @@ install -dp %{buildroot}%{_sharedstatedir}/containers
 sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %sysctl_apply 99-cri-o.conf
 %endif
-ln -sf %{_unitdir}/%{service_name}.service {_unitdir}/%{name}.service
 %systemd_post %{service_name}
 
 %preun
 %systemd_preun %{service_name}
 
 %postun
-rm -f %{_unitdir}/%{name}.service
 %systemd_postun_with_restart %{service_name}
 
 %files
