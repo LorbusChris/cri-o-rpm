@@ -45,6 +45,9 @@ Summary:        Open Container Initiative-based implementation of Kubernetes Con
 License:        ASL 2.0
 URL:            https://github.com/cri-o/cri-o
 Source0:        %url/archive/v%{version}/%{name}-%{version}.tar.gz
+Source3:        %{service_name}-network.sysconfig
+Source4:        %{service_name}-storage.sysconfig
+Source5:        %{service_name}-metrics.sysconfig
 
 %if 0%{?rhel}
 BuildRequires:  golang
@@ -163,6 +166,12 @@ install -p -m 644 crio.conf %{buildroot}%{_sysconfdir}/%{service_name}
 install -p -m 644 crio-umount.conf %{buildroot}%{_datadir}/oci-umount/oci-umount.d/%{service_name}-umount.conf
 install -p -m 644 crictl.yaml %{buildroot}%{_sysconfdir}
 
+install -dp %{buildroot}%{_sysconfdir}/sysconfig
+install -p -m 644 contrib/sysconfig/%{service_name} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}
+install -p -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}-network
+install -p -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}-storage
+install -p -m 644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/%{service_name}-metrics
+
 %make_install PREFIX=%{buildroot}%{_prefix} \
             install.bin \
             install.completions \
@@ -210,6 +219,10 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %{_mandir}/man8/%{service_name}*.8*
 %dir %{_sysconfdir}/%{service_name}
 %config(noreplace) %{_sysconfdir}/%{service_name}/%{service_name}.conf
+%config(noreplace) %{_sysconfdir}/sysconfig/%{service_name}
+%config(noreplace) %{_sysconfdir}/sysconfig/%{service_name}-storage
+%config(noreplace) %{_sysconfdir}/sysconfig/%{service_name}-network
+%config(noreplace) %{_sysconfdir}/sysconfig/%{service_name}-metrics
 %config(noreplace) %{_sysconfdir}/cni/net.d/100-%{service_name}-bridge.conf
 %config(noreplace) %{_sysconfdir}/cni/net.d/200-loopback.conf
 %config(noreplace) %{_sysconfdir}/crictl.yaml
