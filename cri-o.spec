@@ -37,7 +37,7 @@ Version:                1.22.0
 
 Name:           cri-o
 Epoch:          0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Open Container Initiative-based implementation of Kubernetes Container Runtime Interface
 
 
@@ -178,12 +178,6 @@ echo "fs.may_detach_mounts=1" > %{buildroot}%{_prefix}/lib/sysctl.d/99-cri-o.con
 
 install -dp %{buildroot}%{_sharedstatedir}/containers
 
-%if %{with check}
-%check
-# https://github.com/cri-o/cri-o/issues/4991
-%gocheck -d server
-%endif
-
 %post
 # Old verions of kernel do not recognize metacopy option.
 # Reference: github.com/cri-o/cri-o/issues/3631
@@ -215,8 +209,6 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %config(noreplace) %{_sysconfdir}/crictl.yaml
 %dir %{_libexecdir}/%{service_name}
 %{_unitdir}/%{service_name}.service
-%{_unitdir}/%{name}.service
-%{_unitdir}/%{service_name}-shutdown.service
 %{_unitdir}/%{service_name}-wipe.service
 %dir %{_sharedstatedir}/containers
 %dir %{_datadir}/containers
@@ -233,6 +225,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %endif
 
 %changelog
+* Mon Sep 13 2021 Peter Hunt <pehunt@redhat.com> - 0:1.22.0-3
+- fix spec
+
 * Wed Aug 25 2021 Peter Hunt <pehunt@redhat.com> - 0:1.22.0-2
 - bump to v1.22.0
 
