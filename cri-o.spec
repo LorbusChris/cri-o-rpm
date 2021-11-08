@@ -37,7 +37,7 @@ Version:                1.22.0
 
 Name:           cri-o
 Epoch:          0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Open Container Initiative-based implementation of Kubernetes Container Runtime Interface
 
 
@@ -47,7 +47,7 @@ URL:            https://github.com/cri-o/cri-o
 Source0:        %url/archive/v%{version}/%{name}-%{version}.tar.gz
 
 %if 0%{?rhel}
-BuildRequires:  golang
+BuildRequires:  golang >= 1.16
 %endif
 %if 0%{?rhel} && 0%{?rhel} <= 8
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
@@ -225,6 +225,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %endif
 
 %changelog
+* Mon Nov 08 2021 Peter Hunt <pehunt@redhat.com> - 0:1.22.0-4
+- update golang version
+
 * Mon Sep 13 2021 Peter Hunt <pehunt@redhat.com> - 0:1.22.0-3
 - fix spec
 
