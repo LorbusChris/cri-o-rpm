@@ -1,6 +1,6 @@
 # https://github.com/cri-o/cri-o
 %global goipath         github.com/cri-o/cri-o
-Version:                1.22.0
+Version:                1.22.1
 
 %if 0%{?rhel} && 0%{?rhel} <= 8
 %define gobuild(o:) %{expand:
@@ -33,11 +33,11 @@ Version:                1.22.0
 %global service_name crio
 
 # Commit for the builds
-%global commit0 6becad23eadd7dfdd25fd8df386bf3b706cf7758
+%global commit0 63ca93845d5fe05cdca826367afcb601ece8d7ad
 
 Name:           cri-o
 Epoch:          0
-Release:        4%{?dist}
+Release:        1%{?dist}
 Summary:        Open Container Initiative-based implementation of Kubernetes Container Runtime Interface
 
 
@@ -225,6 +225,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %endif
 
 %changelog
+* Thu Nov 11 2021 Peter Hunt <pehunt@redhat.com> - 0:1.22.1-1
+- bump to v1.22.1
+
 * Mon Nov 08 2021 Peter Hunt <pehunt@redhat.com> - 0:1.22.0-4
 - update golang version
 
