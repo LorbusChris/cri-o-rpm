@@ -37,7 +37,7 @@ Version:                1.22.1
 
 Name:           cri-o
 Epoch:          0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Open Container Initiative-based implementation of Kubernetes Container Runtime Interface
 
 
@@ -225,6 +225,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %endif
 
 %changelog
+* Fri Dec 03 2021 Peter Hunt <pehunt@redhat.com> - 0:1.22.1-2
+- fix bogus date
+
 * Thu Nov 11 2021 Peter Hunt <pehunt@redhat.com> - 0:1.22.1-1
 - bump to v1.22.1
 
@@ -304,7 +307,7 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 * Fri Jun 05 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.1-2
 - Add --cni-plugin-dir /opt/cni/bin to cri-o conf file
 
-* Thu May 16 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.1-1
+* Thu May 14 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.1-1
 - Release 1.18.1
 
 * Thu Apr 23 2020 Douglas Schilling Landgraf <dougsland@redhat.com> - 2:1.18.0-2
