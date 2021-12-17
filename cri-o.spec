@@ -1,6 +1,6 @@
 # https://github.com/cri-o/cri-o
 %global goipath         github.com/cri-o/cri-o
-Version:                1.22.1
+Version:                1.23.0
 
 %if 0%{?rhel} && 0%{?rhel} <= 8
 %define gobuild(o:) %{expand:
@@ -37,7 +37,7 @@ Version:                1.22.1
 
 Name:           cri-o
 Epoch:          0
-Release:        2%{?dist}
+Release:        1%{?dist}
 Summary:        Open Container Initiative-based implementation of Kubernetes Container Runtime Interface
 
 
@@ -47,7 +47,7 @@ URL:            https://github.com/cri-o/cri-o
 Source0:        %url/archive/v%{version}/%{name}-%{version}.tar.gz
 
 %if 0%{?rhel}
-BuildRequires:  golang >= 1.16
+BuildRequires:  golang >= 1.17
 %endif
 %if 0%{?rhel} && 0%{?rhel} <= 8
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
@@ -225,6 +225,9 @@ sed -i -e 's/,metacopy=on//g' /etc/containers/storage.conf
 %endif
 
 %changelog
+* Fri Dec 17 2021 Peter Hunt <pehunt@redhat.com> - 0:1.23.0-1
+- bump to v1.23.0
+
 * Fri Dec 03 2021 Peter Hunt <pehunt@redhat.com> - 0:1.22.1-2
 - fix bogus date
 
